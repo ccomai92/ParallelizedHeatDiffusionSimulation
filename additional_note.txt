@@ -1,0 +1,64 @@
+(1) Modifying your .bash_profile. Here is my .bash_profile. Please add the three lines in red below:
+# .bash_profile                                                                                                                                             
+
+# Get the aliases and functions                                                                                                                             
+if [ -f ~/.bashrc ]; then
+        . ~/.bashrc
+fi
+
+# User specific environment and startup programs                                                                                                            
+
+PATH=$PATH:$HOME/.local/bin:$HOME/bin
+PATH=/usr/apps/mpich121-`uname -p`/bin:$PATH
+
+export HADOOP_HOME=$HOME/hadoop-0.20.2
+export HADOOP_VERSION=0.20.2
+export PATH=$PATH:$HADOOP_HOME/bin
+
+export JAVA_HOME=/usr/java/latest
+export SPARK_HOME=/home/mfukuda/spark-2.3.1-bin-hadoop2.7
+export PATH=$SPARK_HOME/bin:$PATH
+
+export CLASSPATH=$CLASSPATH:/usr/apps/mpiJava-`uname -p`/lib/classes:.
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/apps/mpiJava-`uname -p`/lib
+export PATH=/usr/apps/mpiJava-`uname -p`/src/scripts:$JAVA_HOME/bin:$PATH
+
+export PATH
+
+(2) Here is my simple sh to run mpiJava (java_mpirun.sh):
+#!/bin/sh
+# $1: #cpus
+# $2: your java class
+# $3: arguments[0]
+# $4: arguments[1]
+mpirun -n $1 java $2 $3 $3 $4 $4
+
+Given these, I can run as follows:
+[mfukuda@cssmpi1 mpiJava]$ ls
+Hello.class  Hello.java  Hello.java~  java_mpirun.sh  MatrixMult.class  MatrixMult.java  mpd.hosts  mpi_setup.txt  not_prunjava.sh
+[mfukuda@cssmpi1 mpiJava]$ cat mpd.hosts
+uw1-320-10.uwb.edu
+uw1-320-11.uwb.edu
+uw1-320-14.uwb.edu
+uw1-320-13.uwb.edu
+[mfukuda@cssmpi1 mpiJava]$ CSSmpdboot -n 4 -v
+Preparing...
+Starting Master's mpd Process...
+Starting node: cssmpi2
+Starting node: cssmpi3
+Starting node: cssmpi4
+Cluster built:
+cssmpi1_39293 (172.28.203.196)
+CSSmpdboot finished!
+[mfukuda@cssmpi1 mpiJava]$ javac *.java
+[mfukuda@cssmpi1 mpiJava]$ ls
+Hello.class  Hello.java  Hello.java~  java_mpirun.sh  MatrixMult.class  MatrixMult.java  mpd.hosts  mpi_setup.txt  not_prunjava.sh
+[mfukuda@cssmpi1 mpiJava]$ ./java_mpirun.sh 4 Hello CSS534!
+received: Greetings from process 1 on cssmpi4 : CSS534!
+received: Greetings from process 2 on cssmpi2 : CSS534!
+received: Greetings from process 3 on cssmpi3 : CSS534!
+[mfukuda@cssmpi1 mpiJava]$ mpdallexit
+[mfukuda@cssmpi1 mpiJava]$
+
+Hope this helps,
+Munehiro Fukuda
